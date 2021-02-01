@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/stylesheets/index.css">
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    </head>
+    <body>
+        
+        <label>Name</label>
+        <input id="name"><br>
+        <label>Age</label>
+        <input style="margin-left: 12px;" id="age"><br>
+        <button id="send" type="submit">Send</button>
+    </body>
+</html>
+
+
+<script>
+    $(document).ready( ()=>{
+        $("#send").click( ()=>{
+            //alert();
+            let name = document.getElementById("name").value
+            //alert(name);
+            let age = document.getElementById("age").value
+            if( name == '' || age == ''){
+                alert('Enter all fields!');
+            }else{
+                $.post("/sendSQS", {name: name, age: age}, (res) =>{
+                    
+                    
+                    alert(res.info);
+                    
+                })
+            }
+        })
+
+
+
+    });
+
+</script>
