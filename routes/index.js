@@ -5,6 +5,7 @@ const aws = require('aws-sdk');
 aws.config.loadFromPath('./config.json');
 const queueUrl = "https://sqs.us-east-2.amazonaws.com/372767132430/YearNameSQS"
 const path = require("path");
+const { Lambda } = require('aws-sdk');
 const sqs = new aws.SQS();
 const ddb = new aws.DynamoDB();
 
@@ -23,53 +24,28 @@ router.post('/sendSQS', function (req, res, next) {
 
   let info = `name: ${req.body.name}, age: ${req.body.age}`
 
+  // all this in lambda -_-
+  // jedynie co udało mi ogarnac za ten czas
+  lambda = new aws.Lambda();
+
   let params = {
-    MessageBody: info,
-    QueueUrl: queueUrl,
-    DelaySeconds: 0
+    FunctionName: 'test',
+    InvocationType: 'RequestResponse',
+    LogType: 'None'
   };
 
-  sqs.sendMessage(params, (err, data) => {
+
+  //res.send({info: data})
+  //console.log(data)
+  lambda.invoke(params, function (err, data) {
     if (err) {
-      res.send({ info: err });
-      console.log(err)
+      prompt(err);
     } else {
-      console.log(data)   // nie otrzymuje receiptID
-      var params = {
-        TableName: 'nameAge',
-        Item: {
-          'info': { S: info },
-        }
-      };
-
-
-      ddb.putItem(params, function (err, data) {
-        if (err) {
-          console.log("Error", err);
-          res.send({info: 'error'});
-        } else {
-          console.log("Success", data);
-          res.send({info: 'ok'});
-
-          // sqs.deleteMessage(params, function (err, data) {
-          //   if (err) {
-          //     res.send(err);
-          //   }
-          //   else {
-          //     res.send(data);
-          //   }
-          // });
-        }
-      });
-
-    };
-
-
-    //res.send({info: data})
-    //console.log(data)
-
+      res.send({info: "ok"});
+    }
   });
 
-})
+
+});
 
 module.exports = router;
